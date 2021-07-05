@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         },
         isFree: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-        isSaleOnline: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
+        isSaleOnline: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
+        soldOut: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
 
 
     });
