@@ -8,12 +8,7 @@
     "storage": ":memory"
   },
   "production": {
-    "username": "yamamz",
-    "password": "maimai011385",
-    "database": "raffledb_production",
-    "host": "localhost",
     "dialect": "postgres",
-    "operatorsAliases": false,
     "use_env_variable": "DATABASE_URL"
   }
 }
