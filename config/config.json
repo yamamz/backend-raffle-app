@@ -8,7 +8,12 @@
     "storage": ":memory"
   },
   "production": {
-    "dialect": "sqlite",
-    "storage": "./prod-database.sqlite3"
+    "username": "yamamz",
+    "password": "maimai011385",
+    "database": "raffledb_production",
+    "host": "localhost",
+    "dialect": "postgres",
+    "operatorsAliases": false,
+    "use_env_variable": "DATABASE_URL"
   }
 }
