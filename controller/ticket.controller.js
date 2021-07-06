@@ -2,6 +2,7 @@ const express = require('express')
 const ticketRoute = express.Router()
 const db = require('./../models')
 const { authJwt } = require("../middleware");
+const Sequelize = require('sequelize');
 ticketRoute.post('/new', [authJwt.verifyToken], async (req, res) => {
     try {
         await db.Tickets.bulkCreate(req.body);
@@ -14,10 +15,11 @@ ticketRoute.post('/new', [authJwt.verifyToken], async (req, res) => {
 })
 ticketRoute.post('/validate-tickets', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
     try {
+        console.log(req.body)
         await db.Tickets.update({ soldOut: true }, {
             where: {
                 id: {
-                    $in: req.body
+                    [Sequelize.Op.in]: req.body
                 }
             }
         });
