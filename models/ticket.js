@@ -8,8 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         isFree: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
         isSaleOnline: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
         soldOut: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-
-
     });
     Tickets.associate = models => {
         Tickets.belongsTo(models.Users);

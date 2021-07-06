@@ -12,6 +12,22 @@ ticketRoute.post('/new', [authJwt.verifyToken], async (req, res) => {
     }
 
 })
+ticketRoute.post('/validate-tickets', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
+    try {
+        await db.Tickets.update({ soldOut: true }, {
+            where: {
+                id: {
+                    $in: req.body
+                }
+            }
+        });
+        res.send({ message: 'success' })
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
+
+})
+
 
 ticketRoute.get('/getAll', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
     try {

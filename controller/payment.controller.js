@@ -21,6 +21,97 @@ const payment = async (req, res) => {
     });
 }
 
+const makeid = (length) => {
+    var result = "";
+    var characters = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789";
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(
+            Math.floor(Math.random() * charactersLength)
+        );
+    }
+    return result;
+}
+
+const chargePayment = async (req, res) => {
+    try {
+        const charge = await stripe.charges.create({
+            amount: req.body.amount * 100,
+            currency: 'cad',
+            description: 'Payment for ticket entries',
+            source: req.body.token,
+            metadata: { ticket_buy: `${req.body.ticketPcs} tickets buy`, fullname: req.body.fullname, email: req.body.email }
+        });
+
+        let tickets = [];
+
+        for (let i = 1; i <= req.body.ticketPcs; i++) {
+            tickets.push({
+                ticketNumber:
+                    makeid(4) +
+                    `${req.body.userId}` +
+                    "-" +
+                    Math.floor(
+                        Math.pow(10, 10 - 1) +
+                        Math.random() *
+                        (Math.pow(10, 10) - Math.pow(10, 10 - 1) - 1)
+                    ),
+                isFree: false,
+                UserId: req.body.userId,
+                DrawId: req.body.drawId,
+                isSaleOnline: true,
+            });
+        }
+        let totalPriceCheckout = req.body.ticketPcs * req.body.ticketPrice;
+        if (totalPriceCheckout >= 20) {
+            let freeTickets = Math.floor(totalPriceCheckout / 20);
+            for (let i = 1; i <= freeTickets; i++) {
+                tickets.push({
+                    ticketNumber:
+                        makeid(5) +
+                        `${req.body.userId}` +
+                        "-" +
+                        Math.floor(
+                            Math.pow(10, 10 - 1) +
+                            Math.random() *
+                            (Math.pow(10, 10) - Math.pow(10, 10 - 1) - 1)
+                        ),
+                    isFree: true,
+                    UserId: req.body.userId,
+                    DrawId: req.body.drawId,
+                    isSaleOnline: true,
+                });
+            }
+        }
+
+        await db.Tickets.bulkCreate(tickets);
+        res.send({
+            charge: charge,
+            tickets: tickets,
+        })
+    } catch (err) {
+        res.status(500).send({ message: 'there is an error occured when charging your card' })
+    }
+
+}
+
+const donatePayment = async (req, res) => {
+    try {
+        const charge = await stripe.charges.create({
+            amount: req.body.amount * 100,
+            currency: 'cad',
+            description: 'Donation for the fund raising',
+            source: req.body.token,
+            metadata: { fullname: req.body.fullname, email: req.body.email }
+        });
+
+        res.send(charge)
+    } catch (err) {
+        res.status(500).send({ message: 'there is an error occured when charging your card' })
+    }
+
+}
+
 const cancelCheckout = async (req, res) => {
     try {
 
@@ -38,6 +129,17 @@ paymentRoute.post(
     "/ckeckoutPayment",
     [authJwt.verifyToken],
     payment
+);
+paymentRoute.post(
+    "/donatePayment",
+    [authJwt.verifyToken],
+    donatePayment
+);
+
+paymentRoute.post(
+    "/chargePayment",
+    [authJwt.verifyToken],
+    chargePayment
 );
 
 paymentRoute.post(
