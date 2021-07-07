@@ -97,17 +97,24 @@ const chargePayment = async (req, res) => {
 
 const donatePayment = async (req, res) => {
     try {
+        console.log(req.body)
         const charge = await stripe.charges.create({
             amount: req.body.amount * 100,
             currency: 'cad',
             description: 'Donation for the fund raising',
             source: req.body.token,
-            metadata: { fullname: req.body.fullname, email: req.body.email }
+            metadata: { fullname: req.body.fullname, email: req.body.email, phone: req.body.phone }
         });
-
-        res.send(charge)
+        const customer = await db.Donations.create({
+            fullname: req.body.fullname,
+            address: req.body.address,
+            phone: req.body.phone,
+            email: req.body.email,
+            amount: req.body.amount,
+        })
+        res.send({ charge, customer })
     } catch (err) {
-        res.status(500).send({ message: 'there is an error occured when charging your card' })
+        res.status(500).send(err.message)
     }
 
 }
@@ -132,7 +139,7 @@ paymentRoute.post(
 );
 paymentRoute.post(
     "/donatePayment",
-    [authJwt.verifyToken],
+
     donatePayment
 );
 
