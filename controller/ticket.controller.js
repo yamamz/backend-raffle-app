@@ -3,11 +3,61 @@ const ticketRoute = express.Router()
 const db = require('./../models')
 const { authJwt } = require("../middleware");
 const Sequelize = require('sequelize');
-ticketRoute.post('/new', [authJwt.verifyToken], async (req, res) => {
+const makeid = (length) => {
+    var result = "";
+    var characters = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789";
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(
+            Math.floor(Math.random() * charactersLength)
+        );
+    }
+    return result;
+}
+
+ticketRoute.post('/generateOffTicket', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
     try {
-        await db.Tickets.bulkCreate(req.body);
-        const tickets = await db.Tickets.findAll();
-        res.send(tickets)
+
+        let tickets = [];
+        const maxTicketId = await db.Tickets.findAll({
+            attributes: [Sequelize.fn('max', Sequelize.col('id'))],
+            raw: true,
+        })
+        let startId = 0;
+
+        if (maxTicketId.length > 0) {
+            startId = Object.values(maxTicketId[0])[0]
+        }
+
+        for (let i = 1; i <= req.body.ticketPcs; i++) {
+            startId++
+            tickets.push({
+                ticketNumber:
+                    makeid(6) +
+                    "-" +
+                    startId,
+                isFree: false,
+                UserId: req.body.userId,
+                DrawId: req.body.drawId,
+                isSaleOnline: false,
+                soldOut: false,
+            });
+        }
+        await db.Tickets.bulkCreate(tickets);
+        const ticketsByDraw = await db.Tickets.findAll(
+            {
+                where: { DrawId: req.body.drawId },
+                include: [
+                    {
+                        model: db.Draws,
+                    },
+                    {
+                        model: db.Users,
+                    },
+                ]
+            }
+        );
+        return res.status(200).json({ tickets: ticketsByDraw });
     } catch (error) {
         return res.status(500).send(error.message);
     }
@@ -33,6 +83,7 @@ ticketRoute.post('/validate-tickets', [authJwt.verifyToken, authJwt.isModerator]
 
 ticketRoute.get('/getAll', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
     try {
+
         const tickets = await db.Tickets.findAll(
             {
                 include: [
@@ -53,6 +104,12 @@ ticketRoute.get('/getAll', [authJwt.verifyToken, authJwt.isModerator], async (re
 
 ticketRoute.get('/getAllByDraw/:id', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
     try {
+
+        const maxTickets = await db.Tickets.findAll({
+            attributes: [Sequelize.fn('max', Sequelize.col('id'))],
+            raw: true,
+        })
+
         const { id } = req.params;
         const tickets = await db.Tickets.findAll(
             {

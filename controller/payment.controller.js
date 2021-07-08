@@ -6,7 +6,7 @@ const express = require('express')
 const paymentRoute = express.Router()
 const { authJwt } = require("../middleware");
 const nodemailer = require('nodemailer');
-
+const Sequelize = require('sequelize');
 const keys = require('./../config/keys');
 const stripe = require('stripe')(keys.stripeSecretKey);
 const payment = async (req, res) => {
@@ -44,18 +44,23 @@ const chargePayment = async (req, res) => {
         });
 
         let tickets = [];
+        const maxTicketId = await db.Tickets.findAll({
+            attributes: [Sequelize.fn('max', Sequelize.col('id'))],
+            raw: true,
+        })
+        let startId = 0;
+
+        if (maxTicketId.length > 0) {
+            startId = Object.values(maxTicketId[0])[0]
+        }
 
         for (let i = 1; i <= req.body.ticketPcs; i++) {
+            startId++
             tickets.push({
                 ticketNumber:
-                    makeid(4) +
-                    `${req.body.userId}` +
+                    makeid(6) +
                     "-" +
-                    Math.floor(
-                        Math.pow(10, 10 - 1) +
-                        Math.random() *
-                        (Math.pow(10, 10) - Math.pow(10, 10 - 1) - 1)
-                    ),
+                    startId,
                 isFree: false,
                 UserId: req.body.userId,
                 DrawId: req.body.drawId,
@@ -66,16 +71,12 @@ const chargePayment = async (req, res) => {
         if (totalPriceCheckout >= 20) {
             let freeTickets = Math.floor(totalPriceCheckout / 20);
             for (let i = 1; i <= freeTickets; i++) {
+                startId++
                 tickets.push({
                     ticketNumber:
-                        makeid(5) +
-                        `${req.body.userId}` +
+                        'FREE' + makeid(3) +
                         "-" +
-                        Math.floor(
-                            Math.pow(10, 10 - 1) +
-                            Math.random() *
-                            (Math.pow(10, 10) - Math.pow(10, 10 - 1) - 1)
-                        ),
+                        startId,
                     isFree: true,
                     UserId: req.body.userId,
                     DrawId: req.body.drawId,
