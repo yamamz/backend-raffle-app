@@ -3,6 +3,12 @@ const ticketRoute = express.Router()
 const db = require('./../models')
 const { authJwt } = require("../middleware");
 const Sequelize = require('sequelize');
+const PdfMakePrinter = require('pdfmake/src/printer');
+var fs = require('fs');
+// const pdfMake = require("pdfmake/build/pdfmake");
+// const pdfFonts = require("pdfmake/build/vfs_fonts");
+// pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
 const makeid = (length) => {
     var result = "";
     var characters = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789";
@@ -14,6 +20,58 @@ const makeid = (length) => {
     }
     return result;
 }
+
+
+
+const generatePdf = (docDefinition, callback) => {
+    try {
+        var fonts = {
+            Roboto: {
+                normal: 'fonts/Roboto-Regular.ttf',
+                bold: 'fonts/Roboto-Medium.ttf',
+                italics: 'fonts/Roboto-Italic.ttf',
+                bolditalics: 'fonts/Roboto-MediumItalic.ttf'
+            }
+        };
+
+
+        var printer = new PdfMakePrinter(fonts);
+        var pdfDoc = printer.createPdfKitDocument(docDefinition);
+        let chunks = [];
+
+        pdfDoc.on('data', (chunk) => {
+            chunks.push(chunk);
+        });
+
+        pdfDoc.on('end', () => {
+            callback(Buffer.concat(chunks));
+        });
+
+        pdfDoc.end()
+
+    } catch (err) {
+        throw (err);
+    }
+};
+
+ticketRoute.post('/generatePdf', (req, res) => {
+    try {
+        generatePdf(req.body.docDefinition, (responsePdf) => {
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', '"attachment; filename=" + document.pdf');
+            console.log('here');
+            res.send(responsePdf);
+        });
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+
+})
+
+
+
 
 ticketRoute.post('/generateOffTicket', [authJwt.verifyToken, authJwt.isModerator], async (req, res) => {
     try {
