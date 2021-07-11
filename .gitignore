@@ -89,5 +89,5 @@ sw.*
 # Vim swap files
 *.swp
 
-database.sqlite3
-database.sqlite3
+*.sqlite3
+
