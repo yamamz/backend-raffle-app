@@ -133,14 +133,33 @@ const cancelCheckout = async (req, res) => {
 
 }
 
+
+const getStripePublicKey = async (req, res) => {
+    try {
+
+
+        res.send({
+            key: keys.stripePublicKey
+        })
+    } catch (err) {
+        res.status(500).send({ message: 'there is an error occured when cancelling' })
+    }
+
+}
+
 paymentRoute.post(
     "/ckeckoutPayment",
     [authJwt.verifyToken],
     payment
 );
+paymentRoute.get(
+    "/getStripePublicKey",
+    [authJwt.verifyToken],
+    getStripePublicKey
+);
 paymentRoute.post(
     "/donatePayment",
-
+    [authJwt.verifyToken],
     donatePayment
 );
 
