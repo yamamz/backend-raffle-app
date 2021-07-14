@@ -6,7 +6,7 @@
   "author": "Raymundo Melecio",
   "license": "MIT",
   "scripts": {
-    "start": "node start.js --trace-warnings"
+    "start": "node index.js --trace-warnings"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

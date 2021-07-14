@@ -4,6 +4,8 @@ const express = require('express')
 const { join } = require('path')
 const app = express()
 
+require('./db/connection')
+
 
 app.use(express.json({ limit: '50000mb' }))
 app.use(express.urlencoded({
@@ -42,3 +44,7 @@ module.exports = {
     path: '/',
     handler: app
 }
+
+const port = process.env.PORT || 3001
+// Listen the server
+app.listen(port, () => console.log(`Server running on ${port}, http://localhost:${port}`));
