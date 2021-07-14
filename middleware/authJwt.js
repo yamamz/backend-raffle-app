@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("./../config/auth.config");
 const db = require('./../models');
-const User = db.user;
+const Users = require('./../db/models/users')
 
 verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization']
@@ -26,59 +26,59 @@ verifyToken = (req, res, next) => {
 };
 
 isAdmin = (req, res, next) => {
-  User.findByPk(req.userId).then(user => {
-    user.getRoles().then(roles => {
-      for (let i = 0; i < roles.length; i++) {
-        if (roles[i].name === "admin") {
-          next();
-          return;
-        }
+  try {
+    console.log(req.userId)
+    Users.findOne({ _id: req.userId }).then(user => {
+      if (user.role === "admin") {
+        next();
+        return;
       }
-
       res.status(403).send({
         message: "Require Admin Role!"
       });
       return;
+
     });
-  });
+  } catch (err) {
+    res.status(403).send({
+      message: "Require Admin Role!"
+    });
+  }
 };
 
 isModerator = (req, res, next) => {
-  User.findByPk(req.userId).then(user => {
-    user.getRoles().then(roles => {
-      for (let i = 0; i < roles.length; i++) {
-        if (roles[i].name === "moderator") {
-          next();
-          return;
-        }
+  try {
+    Users.findOne({ _id: req.userId }).then(user => {
+      if (user.role === "moderator") {
+        next();
+        return;
       }
-
       res.status(403).send({
         message: "Require Moderator Role!"
       });
+      return;
+
     });
-  });
+  } catch (err) {
+    res.status(403).send({
+      message: err.message
+    });
+    return;
+  }
+
 };
 
 isModeratorOrAdmin = (req, res, next) => {
-  User.findByPk(req.userId).then(user => {
-    user.getRoles().then(roles => {
-      for (let i = 0; i < roles.length; i++) {
-        if (roles[i].name === "moderator") {
-          next();
-          return;
-        }
-
-        if (roles[i].name === "admin") {
-          next();
-          return;
-        }
-      }
-
-      res.status(403).send({
-        message: "Require Moderator or Admin Role!"
-      });
+  Users.findOne({ _id: req.userId }).then(user => {
+    if (user.role === "admin" || user.role === "moderator") {
+      next();
+      return;
+    }
+    res.status(403).send({
+      message: "Require Admin or Moderator Role!"
     });
+    return;
+
   });
 };
 

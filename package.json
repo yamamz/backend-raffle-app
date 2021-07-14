@@ -6,7 +6,7 @@
   "author": "Raymundo Melecio",
   "license": "MIT",
   "scripts": {
-    "start": "node start.js"
+    "start": "node start.js --trace-warnings"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -16,13 +16,15 @@
     "express": "^4.17.1",
     "face-api.js": "^0.22.2",
     "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.2",
     "nodemailer": "^6.6.2",
+    "pdfmake": "^0.1.71",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.6.2",
     "sequelize-cli": "^6.2.0",
     "sqlite3": "^5.0.2",
     "stripe": "^8.157.0",
-    "pdfmake": "^0.1.71"
+    "validator-js": "^0.2.1"
   }
 }

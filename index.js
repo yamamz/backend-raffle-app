@@ -32,10 +32,10 @@ app.use("/data", express.static(dataFolder))
 
 // API routes
 const apiRoutes = express.Router()
-apiRoutes.use('/auth', require('./controller/auth.controller'))
-apiRoutes.use('/payment', require('./controller/payment.controller'))
-apiRoutes.use('/draw', require('./controller/draw.controller'))
-apiRoutes.use('/ticket', require('./controller/ticket.controller'))
+apiRoutes.use('/auth', require('./router/auth.route'))
+apiRoutes.use('/payment', require('./router/payment.route'))
+apiRoutes.use('/draw', require('./router/draw.route'))
+apiRoutes.use('/ticket', require('./router/ticket.route'))
 app.use('/api', apiRoutes)
 
 module.exports = {
