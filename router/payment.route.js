@@ -1,12 +1,7 @@
-const db = require("../models");
-const config = require("../config/auth.config");
-const User = db.user;
-const Role = db.role;
 const express = require('express')
 const paymentRoute = express.Router()
 const { authJwt } = require("../middleware");
 const nodemailer = require('nodemailer');
-const Sequelize = require('sequelize');
 const keys = require('../config/keys');
 const stripe = require('stripe')(keys.stripeSecretKey);
 const Tickets = require('./../db/models/tickets')

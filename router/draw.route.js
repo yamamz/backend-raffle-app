@@ -1,6 +1,5 @@
 const express = require('express')
 const drawRoute = express.Router()
-const db = require('../models')
 const { authJwt } = require("../middleware");
 const Draws = require('./../db/models/draws')
 drawRoute.post('/new', [authJwt.verifyToken, authJwt.isAdmin], async (req, res) => {

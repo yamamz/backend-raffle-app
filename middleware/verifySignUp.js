@@ -56,9 +56,6 @@
 // };
 
 // module.exports = verifySignUp;
-
-const db = require("./../models");
-const ROLES = db.ROLES;
 const Users = require('./../db/models/users')
 const { authJwt } = require("../middleware");
 

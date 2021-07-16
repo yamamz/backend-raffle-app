@@ -1,13 +1,7 @@
-const db = require("../models");
 const config = require("../config/auth.config");
-const User = db.user;
-const Role = db.role;
 const express = require('express')
 const authRoute = express.Router()
 const { verifySignUp, authJwt } = require("../middleware");
-
-const Op = db.Sequelize.Op;
-
 const Users = require('../db/models/users');
 
 var jwt = require("jsonwebtoken");

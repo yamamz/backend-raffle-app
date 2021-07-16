@@ -1,8 +1,6 @@
 const express = require('express')
 const ticketRoute = express.Router()
-const db = require('../models')
 const { authJwt } = require("../middleware");
-const Sequelize = require('sequelize');
 const PdfMakePrinter = require('pdfmake/src/printer');
 const Tickets = require('./../db/models/tickets')
 
@@ -112,7 +110,7 @@ ticketRoute.post('/generateOffTicket', [authJwt.verifyToken, authJwt.isAdmin], a
 ticketRoute.post('/validate-tickets', [authJwt.verifyToken, authJwt.isAdmin], async (req, res) => {
     try {
 
-        await Tickets.find({ '_id': { $in: req.body } }).updateMany({ $set: { soldOut: false } }).exec();
+        await Tickets.find({ '_id': { $in: req.body } }).updateMany({ $set: { soldOut: true } }).exec();
         res.send({ message: 'success' })
     } catch (error) {
         return res.status(500).send(error.message);
