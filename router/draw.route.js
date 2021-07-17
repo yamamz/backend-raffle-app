@@ -21,7 +21,7 @@ drawRoute.post('/new', [authJwt.verifyToken, authJwt.isAdmin], async (req, res) 
 
 drawRoute.get('/getAll', [authJwt.verifyToken], async (req, res) => {
     try {
-        const draws = await Draws.find({}).populate('tickets')
+        const draws = await Draws.find({})
             .exec();
         console.log(draws)
         return res.status(200).json({ draws });
